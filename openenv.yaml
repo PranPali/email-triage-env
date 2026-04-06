@@ -1,0 +1,97 @@
+id: email-triage-v1
+version: "1.0.0"
+name: Email Triage
+description: >
+  A real-world email triage environment where an AI agent must process,
+  prioritise, categorise, draft replies for, and escalate emails in a
+  simulated corporate inbox. Reflects tasks performed daily by customer
+  support agents, operations teams, and executives.
+
+author: openenv-email-triage
+tags:
+  - openenv
+  - email
+  - triage
+  - customer-support
+  - nlp
+  - real-world
+
+tasks:
+  - id: easy
+    description: "Triage 5 clearly-labelled emails. Assign priority & category. Delete spam. Escalate urgent."
+    difficulty: easy
+    max_steps: 20
+    expected_baseline_score: 0.62
+
+  - id: medium
+    description: "Triage 8 emails with mixed urgency. Add draft replies and correct escalations."
+    difficulty: medium
+    max_steps: 35
+    expected_baseline_score: 0.48
+
+  - id: hard
+    description: "Triage 12 high-pressure emails including security issues, legal demands, and sales. Precision required."
+    difficulty: hard
+    max_steps: 55
+    expected_baseline_score: 0.35
+
+observation_space:
+  type: structured
+  fields:
+    inbox:
+      type: list[EmailState]
+      description: "Current inbox snapshot with all email states"
+    goal:
+      type: string
+      description: "Natural-language task goal"
+    step_count:
+      type: integer
+    max_steps:
+      type: integer
+    cumulative_reward:
+      type: float
+    last_action_error:
+      type: string
+    stats:
+      type: dict
+      description: "Inbox summary counts (total, resolved, deleted, etc.)"
+
+action_space:
+  type: structured
+  fields:
+    action_type:
+      type: enum
+      values: [assign_priority, assign_category, draft_reply, mark_resolved, escalate, delete, noop]
+    email_id:
+      type: string
+      description: "Target email ID"
+    priority:
+      type: enum
+      values: [urgent, high, normal, low, spam]
+      required_for: assign_priority
+    category:
+      type: enum
+      values: [customer_support, billing, bug_report, feature_request, internal, sales, spam, other]
+      required_for: assign_category
+    reply_text:
+      type: string
+      required_for: draft_reply
+
+reward:
+  type: dense
+  description: >
+    Delta in grader score after each action, minus a small step cost (0.001).
+    Invalid actions incur a -0.01 penalty. Grader scores are in [0.0, 1.0].
+  range: [-0.1, 1.0]
+
+episode_termination:
+  conditions:
+    - "max_steps reached"
+    - "all emails resolved or deleted"
+
+docker:
+  image: email-triage-env
+  port: 8000
+  health_check: /health
+
+validate_command: "python -m pytest tests/ -v"
