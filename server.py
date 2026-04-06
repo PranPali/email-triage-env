@@ -72,8 +72,10 @@ def get_spec() -> str:
 
 
 @app.post("/reset", response_model=Observation)
-def reset(req: ResetRequest) -> Observation:
+def reset(req: Optional[ResetRequest] = None) -> Observation:
     """Reset the environment for the given task and return the initial observation."""
+    if req is None:
+        req = ResetRequest()
     if req.task_id not in ("easy", "medium", "hard"):
         raise HTTPException(400, f"Unknown task_id '{req.task_id}'. Choose: easy, medium, hard")
     env = _get_env(req.task_id)
