@@ -96,12 +96,15 @@ SYSTEM_PROMPT = textwrap.dedent(
     }
 
     Strategy:
-    1. Assign priorities first (urgent > high > normal > low > spam).
-    2. Assign categories to each email.
-    3. Draft replies for emails that clearly need a response.
-    4. Escalate emails tagged urgent that involve security, legal, or outages.
-    5. Delete spam emails.
-    6. Mark everything else resolved.
+    1. Go through EACH email one by one — do not repeat actions on the same email.
+    2. For each email assign priority first, then category, then reply/escalate/delete if needed.
+    3. Once an email has priority AND category assigned, move to the NEXT email immediately.
+    4. Delete spam emails (priority=spam). Escalate urgent emails involving outages/security/legal.
+    5. After all emails are handled, mark remaining ones as resolved.
+
+    IMPORTANT: Check the inbox state carefully. If an email already has a priority assigned,
+    do NOT assign priority again — move on to assigning its category or the next email.
+    Never repeat the same action on the same email twice.
 
     Respond ONLY with the JSON action object. No explanation. No markdown fences.
     """
