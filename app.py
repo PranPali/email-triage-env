@@ -1,18 +1,11 @@
 """
-Hugging Face Spaces entrypoint.
-Launches the FastAPI server when deployed as a HF Space.
+server/app.py — Entry point for multi-mode deployment.
+Imports and re-exports the FastAPI app and main() from the root server.py.
 """
-import subprocess
 import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-if __name__ == "__main__":
-    subprocess.run(
-        [
-            sys.executable, "-m", "uvicorn",
-            "server:app",
-            "--host", "0.0.0.0",
-            "--port", "7860",   # HF Spaces uses port 7860
-            "--workers", "1",
-        ],
-        check=True,
-    )
+from server import app, main  # noqa: F401
+
+__all__ = ["app", "main"]
