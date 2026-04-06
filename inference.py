@@ -35,8 +35,8 @@ from models import Action, ActionType, Category, Priority
 # ---------------------------------------------------------------------------
 
 API_BASE_URL: str = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
-API_KEY: str = os.getenv("HF_TOKEN") or os.getenv("API_KEY", "")
 MODEL_NAME: str = os.getenv("MODEL_NAME", "meta-llama/Llama-3.3-70B-Instruct")
+API_KEY: str = os.getenv("HF_TOKEN") or os.getenv("API_KEY", "")
 
 TASKS = ["easy", "medium", "hard"]
 BENCHMARK = "email-triage-v1"
