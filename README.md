@@ -1,3 +1,15 @@
+﻿---
+title: Email Triage OpenEnv
+emoji: 📧
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+tags:
+  - openenv
+---
+
 # Email Triage OpenEnv
 
 > **Real-world AI agent benchmark**: Can your agent manage a corporate inbox under pressure?
@@ -9,28 +21,28 @@
 
 ## Overview
 
-**Email Triage** is an [OpenEnv](https://openenv.dev)-compliant reinforcement learning environment that simulates the daily task of managing a corporate email inbox. This is a task humans perform constantly — support agents, operations managers, executives — making it an ideal benchmark for evaluating AI agents on real-world knowledge work.
+**Email Triage** is an [OpenEnv](https://openenv.dev)-compliant reinforcement learning environment that simulates the daily task of managing a corporate email inbox. This is a task humans perform constantly â€” support agents, operations managers, executives â€” making it an ideal benchmark for evaluating AI agents on real-world knowledge work.
 
 An agent interacts with a structured inbox and must:
 
-- **Prioritise** emails correctly (urgent → high → normal → low → spam)
+- **Prioritise** emails correctly (urgent â†’ high â†’ normal â†’ low â†’ spam)
 - **Categorise** emails by type (billing, bug report, customer support, etc.)
 - **Draft professional replies** to emails that require a response
 - **Escalate** critical issues to engineering, management, or legal
 - **Delete** spam without acting on it
 
-The environment provides **dense reward signals** — every good action is rewarded immediately, every mistake penalised — making it suitable for both supervised fine-tuning and reinforcement learning.
+The environment provides **dense reward signals** â€” every good action is rewarded immediately, every mistake penalised â€” making it suitable for both supervised fine-tuning and reinforcement learning.
 
 ---
 
 ## Motivation
 
-Most existing agent benchmarks focus on games (Atari, MuJoCo) or toy tasks. Real productivity work — triaging hundreds of emails, routing issues, drafting contextual replies — is where AI assistants are being deployed today. This environment:
+Most existing agent benchmarks focus on games (Atari, MuJoCo) or toy tasks. Real productivity work â€” triaging hundreds of emails, routing issues, drafting contextual replies â€” is where AI assistants are being deployed today. This environment:
 
 - Fills a gap in the OpenEnv ecosystem for **knowledge-work** tasks
 - Provides **graded difficulty** from straightforward labelling (easy) to subtle legal/security judgments (hard)
 - Rewards **nuanced reasoning**, not just pattern matching
-- Is **cheap to run** — no UI, no browser, pure structured text
+- Is **cheap to run** â€” no UI, no browser, pure structured text
 
 ---
 
@@ -73,11 +85,11 @@ Actions are typed Pydantic objects (`models.Action`):
 | `mark_resolved`   | `email_id`                    | Mark email as handled                           |
 | `escalate`        | `email_id`                    | Flag for engineering / management escalation   |
 | `delete`          | `email_id`                    | Delete (spam / no-action emails)                |
-| `noop`            | —                             | Do nothing (costs a step)                       |
+| `noop`            | â€”                             | Do nothing (costs a step)                       |
 
-**Priority values:** `urgent` · `high` · `normal` · `low` · `spam`
+**Priority values:** `urgent` Â· `high` Â· `normal` Â· `low` Â· `spam`
 
-**Category values:** `customer_support` · `billing` · `bug_report` · `feature_request` · `internal` · `sales` · `spam` · `other`
+**Category values:** `customer_support` Â· `billing` Â· `bug_report` Â· `feature_request` Â· `internal` Â· `sales` Â· `spam` Â· `other`
 
 ---
 
@@ -114,34 +126,34 @@ class EmailState(BaseModel):
 
 ## Reward Function
 
-The reward is **dense** — agents receive feedback on every step:
+The reward is **dense** â€” agents receive feedback on every step:
 
 ```
-reward_t = Δ(grader_score) − 0.001 (step cost)
+reward_t = Î”(grader_score) âˆ’ 0.001 (step cost)
 ```
 
 - **Positive reward**: when an action improves the grader score (e.g., correctly assigning `urgent` to a production outage)
 - **Negative reward**: when an action worsens the score (e.g., marking a security email as `spam`)
-- **Step penalty**: `−0.001` per step to encourage efficiency
-- **Invalid action penalty**: `−0.01` for malformed actions
+- **Step penalty**: `âˆ’0.001` per step to encourage efficiency
+- **Invalid action penalty**: `âˆ’0.01` for malformed actions
 
 ### Grader Scoring
 
 Each grader computes a score in `[0.0, 1.0]`:
 
-**Easy grader** (per email): `0.5 × priority_accuracy + 0.5 × category_accuracy`
+**Easy grader** (per email): `0.5 Ã— priority_accuracy + 0.5 Ã— category_accuracy`
 - Bonus `+0.2` for deleting spam
 - Bonus `+0.2` for escalating urgent emails
 
-**Medium grader** (per email): `0.30 × priority + 0.30 × category + 0.25 × reply_quality + 0.15 × escalation_correctness`
+**Medium grader** (per email): `0.30 Ã— priority + 0.30 Ã— category + 0.25 Ã— reply_quality + 0.15 Ã— escalation_correctness`
 
-**Hard grader** (per email): `0.35 × priority (strict) + 0.25 × category + 0.25 × reply_quality (strict) + 0.15 base − 0.20 missed escalation penalty`
+**Hard grader** (per email): `0.35 Ã— priority (strict) + 0.25 Ã— category + 0.25 Ã— reply_quality (strict) + 0.15 base âˆ’ 0.20 missed escalation penalty`
 
 ---
 
 ## Task Descriptions
 
-### Task 1 — Easy (5 emails)
+### Task 1 â€” Easy (5 emails)
 
 **Goal:** Triage a small inbox with clear, unambiguous signals.
 
@@ -149,11 +161,11 @@ Each grader computes a score in `[0.0, 1.0]`:
 - The urgent email is clearly a production outage
 - Categories map directly to content
 
-**Expected agent behaviour:** Recognise patterns, assign all 5 emails correctly in ≤15 steps.
+**Expected agent behaviour:** Recognise patterns, assign all 5 emails correctly in â‰¤15 steps.
 
 ---
 
-### Task 2 — Medium (8 emails)
+### Task 2 â€” Medium (8 emails)
 
 **Goal:** Triage a mixed inbox and draft replies.
 
@@ -166,20 +178,20 @@ Each grader computes a score in `[0.0, 1.0]`:
 
 ---
 
-### Task 3 — Hard (12 emails)
+### Task 3 â€” Hard (12 emails)
 
 **Goal:** Manage a high-pressure inbox with critical items.
 
 Includes:
-- **Security vulnerability** (SQL injection disclosure) → must be `urgent` + `bug_report` + escalated
-- **GDPR legal demand** → `urgent` + escalated
-- **Account compromise** → `urgent` + escalated
-- **Press/media inquiry during outage** → `urgent` + escalated
-- **Revenue-critical sales lead** (500 seats, end of quarter) → `high`
-- Automated monitoring alert (high error rate) → `high` + escalated
+- **Security vulnerability** (SQL injection disclosure) â†’ must be `urgent` + `bug_report` + escalated
+- **GDPR legal demand** â†’ `urgent` + escalated
+- **Account compromise** â†’ `urgent` + escalated
+- **Press/media inquiry during outage** â†’ `urgent` + escalated
+- **Revenue-critical sales lead** (500 seats, end of quarter) â†’ `high`
+- Automated monitoring alert (high error rate) â†’ `high` + escalated
 - Routine items that should **not** be over-escalated
 
-**Expected agent behaviour:** Demonstrate contextual reasoning — a GDPR email from a `.eu` domain with "Article 46" references is not `normal`. An internal post-mortem is not `urgent`.
+**Expected agent behaviour:** Demonstrate contextual reasoning â€” a GDPR email from a `.eu` domain with "Article 46" references is not `normal`. An internal post-mortem is not `urgent`.
 
 ---
 
@@ -226,12 +238,12 @@ docker run -p 8000:8000 \
 The environment exposes a REST API:
 
 ```
-POST /reset              { "task_id": "easy" }         → Observation
-POST /step               { "task_id": "easy", "action": {...} }  → StepResult
-GET  /state?task_id=easy                                 → EnvironmentState
-GET  /tasks                                              → task list
-GET  /health                                             → {"status": "ok"}
-GET  /openenv.yaml                                       → spec
+POST /reset              { "task_id": "easy" }         â†’ Observation
+POST /step               { "task_id": "easy", "action": {...} }  â†’ StepResult
+GET  /state?task_id=easy                                 â†’ EnvironmentState
+GET  /tasks                                              â†’ task list
+GET  /health                                             â†’ {"status": "ok"}
+GET  /openenv.yaml                                       â†’ spec
 ```
 
 ### Example interaction
@@ -281,9 +293,9 @@ Scores from `inference.py` using `meta-llama/Llama-3.3-70B-Instruct` via HF Infe
 
 | Task   | Baseline Score | Oracle Score |
 |--------|---------------|--------------|
-| easy   | 0.62          | ≥ 0.95       |
-| medium | 0.48          | ≥ 0.88       |
-| hard   | 0.35          | ≥ 0.80       |
+| easy   | 0.62          | â‰¥ 0.95       |
+| medium | 0.48          | â‰¥ 0.88       |
+| hard   | 0.35          | â‰¥ 0.80       |
 
 Scores are reproducible across runs with `temperature=0.1`.
 
@@ -305,20 +317,20 @@ python -m pytest tests/ -v --tb=short
 
 ```
 email-triage-v1/
-├── env.py              # Core EmailTriageEnv (reset/step/state)
-├── models.py           # Pydantic typed models (Observation, Action, etc.)
-├── server.py           # FastAPI HTTP server
-├── inference.py        # Baseline inference script
-├── openenv.yaml        # OpenEnv spec
-├── app.py              # HF Spaces entrypoint
-├── requirements.txt
-├── Dockerfile
-├── data/
-│   └── emails.py       # Email datasets (easy/medium/hard)
-├── tasks/
-│   └── graders.py      # Task definitions + grader functions
-└── tests/
-    └── test_env.py     # Pytest test suite (40+ tests)
+â”œâ”€â”€ env.py              # Core EmailTriageEnv (reset/step/state)
+â”œâ”€â”€ models.py           # Pydantic typed models (Observation, Action, etc.)
+â”œâ”€â”€ server.py           # FastAPI HTTP server
+â”œâ”€â”€ inference.py        # Baseline inference script
+â”œâ”€â”€ openenv.yaml        # OpenEnv spec
+â”œâ”€â”€ app.py              # HF Spaces entrypoint
+â”œâ”€â”€ requirements.txt
+â”œâ”€â”€ Dockerfile
+â”œâ”€â”€ data/
+â”‚   â””â”€â”€ emails.py       # Email datasets (easy/medium/hard)
+â”œâ”€â”€ tasks/
+â”‚   â””â”€â”€ graders.py      # Task definitions + grader functions
+â””â”€â”€ tests/
+    â””â”€â”€ test_env.py     # Pytest test suite (40+ tests)
 ```
 
 ---
@@ -326,3 +338,4 @@ email-triage-v1/
 ## License
 
 MIT
+
